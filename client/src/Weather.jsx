@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import Loader from './Loader';
 
 const Weather = () => {
     const [city, setCity] = useState('');
     const [weatherData, setWeatherData] = useState(null);
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const fetchWeatherData = async () => {
+          setIsLoading(true);
           try {
             const response = await axios.get('http://localhost:3000/weather/india');
             setWeatherData(response.data);
@@ -15,6 +18,8 @@ const Weather = () => {
           } catch (error) {
             setError('Error fetching weather data');
             console.error(error);
+          } finally {
+            setIsLoading(false);
           }
         };
     
@@ -22,6 +27,7 @@ const Weather = () => {
       }, []);
       
     const getWeather = async () => {
+        setIsLoading(true);
         try {
             const response = await axios.get(`http://localhost:3000/weather/${city}`);
             setWeatherData(response.data);
@@ -30,6 +36,8 @@ const Weather = () => {
             console.error(err);
             setError('Could not fetch weather data. Please try again.');
             setWeatherData(null);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -123,18 +131,18 @@ const Weather = () => {
                                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UV Index: {weatherData.current.uv}</p>
                             </div>
                             <div className='flex items-center'>
-                                &nbsp;&nbsp;&nbsp;&nbsp;<i className='fas fa-wind'></i>
-                                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gusts: {weatherData.current.gust_mph} mph / {weatherData.current.gust_kph}</p>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<i className='fas fa-clock'></i>
+                                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Local Time: {weatherData.location.localtime}</p>
                             </div>
                         </div>
                     </>
-                )}
+                 )}
                 </div>
             </div>
         </div>
+        {isLoading && <Loader text={weatherData ? 'Loading weather...' : 'Fetching weather...'} />}
         </div>
     );
 };
 
-
-export default Weather
+export default Weather;
